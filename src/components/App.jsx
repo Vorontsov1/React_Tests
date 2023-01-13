@@ -1,54 +1,62 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 
-function compInitCount () {
-  console.log('some process...');
-  return Math.trunc(Math.random() * 20)
-}
+
 
 function App ()  {
-// const [count, setCount] = useState(0);
-// const [count, setCount] = useState(compInitCount());
-const [count, setCount] = useState(() => {
-  return compInitCount()
+
+const [type, setType] = useState('users');
+// eslint-disable-next-line
+const [data, setData] = useState([]);
+const [pos, setPos] = useState({
+  x: 0, 
+  y: 0
 });
 
-const [state, setState ] = useState({
-  title: 'Counter',
-  date: Date.now()
-})
+// useEffect(() => {
+// console.log('render');
+// });
 
+useEffect(() => {
+  fetch(`https://jsonplaceholder.typicode.com/${type}`)
+  .then((response) => response.json())
+  .then((json) => setData(json))
 
-function increment () {
-  setCount((prevCount) => {
-    return prevCount + 1
+  return () => {
+    console.log('clean type');
+
+  }
+  
+}, [type])
+
+const mouseMoveHandler = evt => {
+  setPos({
+    x: evt.clientX,
+    y: evt.clientY,
   })
-  // setCount(prev => prev + 1)
 }
 
-function discrement () {
-  setCount(count - 1)
-}
+useEffect(() => {
+  console.log('componentDidMount');
 
- function updateTitle () {
-  setState(prev => {
-    return {
-      ...prev,
-      title: 'new name'
-    }
-  })
- }
+  window.addEventListener('mousemove', mouseMoveHandler)
+   return () => {
+    window.removeEventListener('mousemove', mouseMoveHandler)
+   }
+}, []);
+
 
   return (
     <div>
-     <h1>Counter: {count}</h1>
-     <button onClick={increment} className='btn btn-success'>Add</button>
-     <button onClick={discrement} className='btn btn-danger'>Remove</button>
-     <button onClick={updateTitle} className='btn btn-default'>Change name</button>
+     <h1>Resours: {type}</h1>
+     <button onClick={() => setType('users')}>Users</button>
+     <button onClick={() => setType('todos')}>Todos</button>
+     <button onClick={() => setType('posts')}>Posts</button>
 
-     <pre>{JSON.stringify(state, null, 2)}</pre>
+     {/* <pre>{JSON.stringify(data, null, 2)}</pre> */}
+     <pre>{JSON.stringify(pos, null, 2)}</pre>
     </div>
- 
+   
     
   );
 };
